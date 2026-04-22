@@ -2,186 +2,171 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Presupuesto | Gestión Financiera</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi Presupuesto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: white; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
-        .category-bar { height: 8px; border-radius: 4px; background: #e2e8f0; overflow: hidden; }
-        .category-progress { height: 100%; background: #0f172a; transition: width 0.5s ease-out; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        .card-pro { background: white; border-radius: 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); }
+        .input-pro { background: #f8fafc; border: 2px solid #f1f5f9; border-radius: 18px; padding: 1rem; width: 100%; transition: all 0.3s; outline: none; }
+        .input-pro:focus { border-color: #10b981; background: white; }
+        .btn-add { background: #0f172a; color: white; border-radius: 18px; font-weight: 800; transition: all 0.2s; }
+        .btn-add:active { transform: scale(0.95); }
+        .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-10">
 
-    <div class="bg-slate-900 text-white p-8 rounded-b-[40px] mb-6 shadow-2xl">
+    <div class="bg-white p-6 pb-10 rounded-b-[40px] shadow-sm mb-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-xl font-extrabold tracking-tight">Mi <span class="text-emerald-400">Presupuesto</span></h1>
-            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/30">USD $</span>
+            <h1 class="text-xl font-extrabold text-slate-800">Mi <span class="text-emerald-500">Presupuesto</span></h1>
+            <div class="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-black text-slate-500">USD $</div>
         </div>
-        <div class="text-center">
-            <p class="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Saldo Neto Mensual</p>
-            <h2 id="balance-total" class="text-5xl font-black mb-4">$0.00</h2>
-            <div class="flex justify-around text-sm">
-                <div class="text-emerald-400">
-                    <p class="text-[10px] uppercase opacity-60 font-bold">Total Ingresos</p>
-                    <p class="font-bold text-lg" id="res-income">$0.00</p>
-                </div>
-                <div class="text-rose-400">
-                    <p class="text-[10px] uppercase opacity-60 font-bold">Total Gastos</p>
-                    <p class="font-bold text-lg" id="res-expenses">$0.00</p>
-                </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-emerald-50 rounded-3xl">
+                <p class="text-[10px] font-bold text-emerald-600 uppercase mb-1">Ingresos Totales</p>
+                <h3 id="top-income" class="text-xl font-black text-emerald-700">$0.00</h3>
+            </div>
+            <div class="p-4 bg-rose-50 rounded-3xl">
+                <p class="text-[10px] font-bold text-rose-600 uppercase mb-1">Gastos Totales</p>
+                <h3 id="top-expense" class="text-xl font-black text-rose-700">$0.00</h3>
+            </div>
+            <div class="col-span-2 p-6 bg-slate-900 rounded-[32px] text-center mt-2">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1 tracking-widest">Disponible Real</p>
+                <h2 id="top-balance" class="text-4xl font-black text-white">$0.00</h2>
             </div>
         </div>
     </div>
 
     <div class="px-5 space-y-6">
         
-        <div class="glass-card p-6">
-            <h3 class="font-extrabold text-slate-800 mb-4 flex items-center">
-                <span class="mr-2 text-emerald-500">📝</span> Registrar Rubro
+        <div class="card-pro p-6">
+            <h3 class="text-sm font-black text-slate-800 mb-4 flex items-center">
+                <span class="mr-2">📝</span> AGREGAR NUEVO RUBRO
             </h3>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Descripción del concepto</label>
-                    <input type="text" id="item-desc" placeholder="Ej: Alquiler, Mercado, Honorarios..." class="w-full p-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
-                </div>
+            <div class="space-y-3">
+                <input type="text" id="name" placeholder="Nombre del rubro (ej. Alquiler)" class="input-pro text-sm">
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Categoría</label>
-                        <select id="item-cat" class="w-full p-4 rounded-2xl bg-slate-50 text-sm outline-none font-semibold text-slate-600 appearance-none">
-                            <option value="Ingreso">💰 INGRESO</option>
-                            <option value="Vivienda">🏠 Vivienda</option>
-                            <option value="Alimentación">🛒 Alimentación</option>
-                            <option value="Transporte">🚗 Transporte</option>
-                            <option value="Servicios">⚡ Servicios</option>
-                            <option value="Salud">💊 Salud</option>
-                            <option value="Ocio">🎉 Ocio/Varios</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Monto ($)</label>
-                        <input type="number" id="item-val" placeholder="0.00" class="w-full p-4 rounded-2xl bg-slate-50 text-sm outline-none">
-                    </div>
+                    <select id="cat" class="input-pro text-sm font-bold text-slate-600">
+                        <option value="ingreso">💰 Ingreso</option>
+                        <option value="vivienda">🏠 Vivienda</option>
+                        <option value="comida">🛒 Alimentación</option>
+                        <option value="transporte">🚗 Transporte</option>
+                        <option value="servicios">⚡ Servicios</option>
+                        <option value="ocio">🎉 Ocio/Varios</option>
+                    </select>
+                    <input type="number" id="val" placeholder="Monto $" class="input-pro text-sm">
                 </div>
-                <button onclick="addItem()" class="w-full bg-slate-900 text-white font-extrabold py-4 rounded-2xl shadow-lg active:scale-95 transition-all hover:bg-slate-800">
-                    AÑADIR AL LISTADO
+                
+                <button onclick="add()" class="w-full py-4 btn-add shadow-lg shadow-slate-200">
+                    REGISTRAR EN EL MES
                 </button>
             </div>
         </div>
 
-        <div class="glass-card p-6">
-            <h3 class="font-extrabold text-slate-800 mb-4 flex items-center">
-                <span class="mr-2 text-emerald-500">📊</span> Análisis de Gastos
-            </h3>
-            <div id="category-breakdown" class="space-y-4">
-                <p class="text-center text-gray-400 text-sm py-4 italic">No hay gastos registrados aún.</p>
+        <div class="card-pro p-6">
+            <h3 class="text-sm font-black text-slate-800 mb-4">DISTRIBUCIÓN DEL DINERO</h3>
+            <div id="stats" class="space-y-4 text-gray-400 text-xs italic text-center py-4">
+                Agrega rubros para ver el análisis.
             </div>
         </div>
 
-        <div class="space-y-4">
-            <div class="flex justify-between items-center px-2">
-                <h3 class="font-extrabold text-slate-800">Detalle de Movimientos</h3>
-                <button onclick="reset()" class="text-[10px] font-bold text-rose-500 uppercase tracking-tighter hover:underline">Borrar Historial</button>
+        <div>
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h3 class="font-black text-slate-800 text-sm">DETALLE DEL PRESUPUESTO</h3>
+                <button onclick="reset()" class="text-[10px] font-bold text-rose-500 uppercase">Borrar Mes</button>
             </div>
-            <div id="ledger" class="space-y-3">
+            <div id="list" class="space-y-3">
                 </div>
         </div>
     </div>
 
     <script>
-        let data = JSON.parse(localStorage.getItem('mi_presupuesto_db')) || [];
+        let db = JSON.parse(localStorage.getItem('presupuesto_v3')) || [];
 
-        function addItem() {
-            const desc = document.getElementById('item-desc').value;
-            const val = parseFloat(document.getElementById('item-val').value);
-            const cat = document.getElementById('item-cat').value;
+        function add() {
+            const name = document.getElementById('name').value;
+            const val = parseFloat(document.getElementById('val').value);
+            const cat = document.getElementById('cat').value;
 
-            if(!desc || !val || isNaN(val)) return alert("Por favor, ingresa una descripción y un monto válido.");
+            if(!name || !val) return alert("Por favor rellena todos los campos");
 
-            data.unshift({ desc, val, cat, id: Date.now() });
-            
-            // Limpiar campos
-            document.getElementById('item-desc').value = '';
-            document.getElementById('item-val').value = '';
-            update();
+            db.unshift({ name, val, cat, id: Date.now() });
+            document.getElementById('name').value = '';
+            document.getElementById('val').value = '';
+            render();
         }
 
-        function update() {
-            const ledger = document.getElementById('ledger');
-            const breakdown = document.getElementById('category-breakdown');
-            ledger.innerHTML = '';
+        function render() {
+            const list = document.getElementById('list');
+            const stats = document.getElementById('stats');
+            list.innerHTML = '';
             
             let inc = 0, exp = 0;
-            let cats = {};
+            let categories = {};
 
-            data.forEach(item => {
-                if(item.cat === 'Ingreso') {
+            db.forEach(item => {
+                if(item.cat === 'ingreso') {
                     inc += item.val;
                 } else {
                     exp += item.val;
-                    cats[item.cat] = (cats[item.cat] || 0) + item.val;
+                    categories[item.cat] = (categories[item.cat] || 0) + item.val;
                 }
 
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100";
-                div.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="p-2 rounded-lg ${item.cat === 'Ingreso' ? 'bg-emerald-50' : 'bg-slate-50'}">
-                             <span class="text-xs font-bold text-slate-500 uppercase">${item.cat.substring(0,3)}</span>
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center p-5 bg-white rounded-[24px] shadow-sm border border-slate-50";
+                row.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 ${item.cat === 'ingreso' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}">
+                            ${item.cat === 'ingreso' ? '↑' : '↓'}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-800 text-sm">${item.desc}</p>
+                            <p class="font-bold text-slate-800 text-sm">${item.name}</p>
+                            <p class="text-[9px] font-black uppercase text-slate-400">${item.cat}</p>
                         </div>
                     </div>
-                    <span class="font-black ${item.cat === 'Ingreso' ? 'text-emerald-500' : 'text-slate-700'}">
-                        ${item.cat === 'Ingreso' ? '+' : '-'}$${item.val.toFixed(2)}
-                    </span>
+                    <p class="font-black ${item.cat === 'ingreso' ? 'text-emerald-500' : 'text-slate-800'}">
+                        ${item.cat === 'ingreso' ? '+' : '-'}$${item.val.toFixed(2)}
+                    </p>
                 `;
-                ledger.appendChild(div);
+                list.appendChild(row);
             });
 
-            // Actualizar Cabecera
-            const total = inc - exp;
-            document.getElementById('balance-total').innerText = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('res-income').innerText = `$${inc.toFixed(2)}`;
-            document.getElementById('res-expenses').innerText = `$${exp.toFixed(2)}`;
+            // Update Totals
+            document.getElementById('top-income').innerText = `$${inc.toFixed(2)}`;
+            document.getElementById('top-expense').innerText = `$${exp.toFixed(2)}`;
+            document.getElementById('top-balance').innerText = `$${(inc - exp).toFixed(2)}`;
 
-            // Generar Análisis de Gastos
-            if (Object.keys(cats).length > 0) {
-                breakdown.innerHTML = '';
-                for (let c in cats) {
-                    const perc = ((cats[c] / exp) * 100).toFixed(0);
-                    const itemBreakdown = document.createElement('div');
-                    itemBreakdown.innerHTML = `
-                        <div class="flex justify-between text-[10px] font-bold uppercase mb-1 text-slate-500">
+            // Build Stats
+            if(Object.keys(categories).length > 0) {
+                stats.innerHTML = '';
+                stats.classList.remove('italic', 'text-center');
+                for (let c in categories) {
+                    const p = ((categories[c] / exp) * 100).toFixed(0);
+                    const bar = document.createElement('div');
+                    bar.innerHTML = `
+                        <div class="flex justify-between text-[10px] font-black uppercase mb-1 text-slate-500">
                             <span>${c}</span>
-                            <span>$${cats[c].toFixed(2)} (${perc}%)</span>
+                            <span>$${categories[c].toFixed(2)} (${p}%)</span>
                         </div>
-                        <div class="category-bar">
-                            <div class="category-progress" style="width: ${perc}%"></div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-slate-900" style="width: ${p}%"></div>
                         </div>
                     `;
-                    breakdown.appendChild(itemBreakdown);
+                    stats.appendChild(bar);
                 }
             } else {
-                breakdown.innerHTML = '<p class="text-center text-gray-400 text-sm py-4 italic">No hay gastos registrados aún.</p>';
+                stats.innerHTML = 'Agrega rubros para ver el análisis.';
             }
 
-            localStorage.setItem('mi_presupuesto_db', JSON.stringify(data));
+            localStorage.setItem('presupuesto_v3', JSON.stringify(db));
         }
 
-        function reset() { 
-            if(confirm("¿Estás seguro de que quieres eliminar todos los registros de este presupuesto?")) { 
-                data = []; 
-                update(); 
-            } 
-        }
-
-        update();
+        function reset() { if(confirm("¿Reiniciar presupuesto del mes?")) { db = []; render(); } }
+        render();
     </script>
 </body>
 </html>
