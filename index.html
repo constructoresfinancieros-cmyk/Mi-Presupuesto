@@ -2,185 +2,159 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Presupuesto | Expert Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Presupuesto | Sistema de Flujo</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
-        .card-shadow { background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .btn-main { background: #111827; color: white; border-radius: 16px; font-weight: 700; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.96); opacity: 0.9; }
-        .input-field { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 12px; width: 100%; outline: none; transition: 0.2s; }
-        .input-field:focus { border-color: #10b981; ring: 2px ring-emerald-500; }
-        .badge-income { background: #ecfdf5; color: #059669; }
-        .badge-expense { background: #fef2f2; color: #dc2626; }
+        :root { --bg: #fdfdfd; --card: #ffffff; --primary: #0f172a; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+        .neo-card { border-radius: 24px; background: var(--card); border: 1px solid #f1f5f9; box-shadow: 0 4px 30px rgba(0,0,0,0.02); }
+        .progress-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="pb-20">
+<body class="p-4 md:p-10 max-w-5xl mx-auto">
 
-    <div class="bg-slate-900 text-white p-6 rounded-b-[40px] shadow-xl mb-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-xl font-extrabold tracking-tight">Mi <span class="text-emerald-400">Presupuesto</span></h1>
-            <span class="text-[10px] font-bold border border-slate-700 px-2 py-1 rounded-lg uppercase tracking-widest text-slate-400">Control de Caja</span>
+    <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Mi <span class="text-indigo-600">Presupuesto</span></h1>
+            <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Gestión de Flujo de Caja v2.0</p>
         </div>
-        
-        <div class="text-center mb-6">
-            <p class="text-xs text-slate-400 font-medium uppercase mb-1">Disponible Real (USD)</p>
-            <h2 id="total-balance" class="text-5xl font-black text-white tracking-tighter">$0.00</h2>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                <p class="text-[10px] font-bold text-emerald-400 uppercase">Ingresos</p>
-                <p id="total-income" class="text-lg font-bold text-white">$0.00</p>
-            </div>
-            <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                <p class="text-[10px] font-bold text-rose-400 uppercase">Gastos</p>
-                <p id="total-expense" class="text-lg font-bold text-white">$0.00</p>
-            </div>
+        <div class="flex gap-2">
+            <button onclick="resetAll()" class="px-4 py-2 text-xs font-bold text-rose-500 bg-rose-50 rounded-xl">Reiniciar Ciclo</button>
         </div>
     </div>
 
-    <div class="px-5 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <div class="card-shadow p-6">
-            <h3 class="text-sm font-bold mb-4 flex items-center">
-                <span class="mr-2">📝</span> NUEVO REGISTRO
-            </h3>
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="col-span-2">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Descripción del rubro</label>
-                        <input type="text" id="desc" placeholder="Ej: Pago de Nomina, Compra Mercado..." class="input-field text-sm">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Monto ($)</label>
-                        <input type="number" id="amount" placeholder="0.00" class="input-field text-sm">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Tipo</label>
-                        <select id="type" class="input-field text-sm font-bold">
-                            <option value="expense">📉 Gasto</option>
-                            <option value="income">📈 Ingreso</option>
-                        </select>
-                    </div>
+        <div class="space-y-6">
+            <div class="neo-card p-6 border-t-4 border-indigo-600">
+                <h3 class="font-bold text-slate-800 mb-4">Ingresar Movimiento</h3>
+                <div class="space-y-4">
+                    <input type="text" id="desc" placeholder="Descripción (ej. Consultoría)" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="number" id="amt" placeholder="Monto USD" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select id="cat" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm font-bold text-slate-600">
+                        <option value="ingreso">💰 Ingreso (Entrada)</option>
+                        <option value="fijo">🏠 Gasto Fijo (Vivienda/Servicios)</option>
+                        <option value="variable">🛒 Variable (Comida/Ocio)</option>
+                        <option value="inversion">📈 Inversión/Ahorro</option>
+                    </select>
+                    <button onclick="save()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Ejecutar Registro</button>
                 </div>
-                <button onclick="addEntry()" class="w-full py-4 btn-main shadow-lg shadow-slate-200">
-                    REGISTRAR MOVIMIENTO
-                </button>
+            </div>
+
+            <div class="neo-card p-6 space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-xs font-bold text-slate-400">DISPONIBLE</span>
+                    <span id="bal" class="font-black text-slate-900">$0.00</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="main-progress" class="progress-fill h-full bg-indigo-600" style="width: 0%"></div>
+                </div>
+                <p id="health-msg" class="text-[10px] font-bold text-slate-400 italic text-center uppercase">Sin movimientos</p>
             </div>
         </div>
 
-        <div class="card-shadow p-6">
-            <h3 class="text-sm font-bold mb-4">ANÁLISIS POR RUBRO</h3>
-            <div id="analytics" class="space-y-4 text-xs text-gray-400 italic text-center">
-                Sin datos para analizar este mes.
+        <div class="lg:col-span-2 space-y-6">
+            <div class="neo-card p-6">
+                <h3 class="font-bold text-slate-800 mb-6">Análisis de Evolución por Categoría</h3>
+                <canvas id="barChart" height="150"></canvas>
             </div>
-        </div>
 
-        <div>
-            <div class="flex justify-between items-center px-2 mb-4">
-                <h3 class="font-bold text-slate-800">DETALLE CRONOLÓGICO</h3>
-                <button onclick="clearAll()" class="text-[10px] font-bold text-rose-500 uppercase">Limpiar Todo</button>
-            </div>
-            <div id="ledger" class="space-y-3">
+            <div class="neo-card overflow-hidden">
+                <div class="p-6 border-b border-slate-50">
+                    <h3 class="font-bold text-slate-800 text-sm">Libro Diario</h3>
                 </div>
+                <div class="max-h-[300px] overflow-y-auto">
+                    <table class="w-full text-left">
+                        <tbody id="rows" class="text-sm">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('mi_presupuesto_v4')) || [];
+        let items = JSON.parse(localStorage.getItem('budget_expert_v2')) || [];
+        let chart;
 
-        function addEntry() {
-            const desc = document.getElementById('desc').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const type = document.getElementById('type').value;
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('es-VE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-            if (!desc || !amount) return alert("Por favor, completa los campos.");
-
-            db.unshift({ desc, amount, type, date: dateStr, id: Date.now() });
-            
-            document.getElementById('desc').value = '';
-            document.getElementById('amount').value = '';
-            update();
+        function initChart() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Fijos', 'Variables', 'Inversión'],
+                    datasets: [{
+                        label: 'Gasto Real ($)',
+                        data: [0, 0, 0],
+                        backgroundColor: ['#4f46e5', '#f59e0b', '#10b981'],
+                        borderRadius: 8
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
+            });
         }
 
-        function deleteEntry(id) {
-            db = db.filter(item => item.id !== id);
+        function save() {
+            const desc = document.getElementById('desc').value;
+            const amt = parseFloat(document.getElementById('amt').value);
+            const cat = document.getElementById('cat').value;
+
+            if(!desc || !amt) return;
+
+            items.unshift({ desc, amt, cat, t: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+            document.getElementById('desc').value = '';
+            document.getElementById('amt').value = '';
             update();
         }
 
         function update() {
-            const ledger = document.getElementById('ledger');
-            const analytics = document.getElementById('analytics');
-            ledger.innerHTML = '';
+            const rows = document.getElementById('rows');
+            rows.innerHTML = '';
             
-            let inc = 0, exp = 0;
-            let group = {};
+            let res = { ingreso: 0, fijo: 0, variable: 0, inversion: 0 };
 
-            db.forEach(item => {
-                if (item.type === 'income') inc += item.amount;
-                else {
-                    exp += item.amount;
-                    group[item.desc] = (group[item.desc] || 0) + item.amount;
-                }
+            items.forEach((item, index) => {
+                res[item.cat] += item.amt;
 
-                const card = document.createElement('div');
-                card.className = "card-shadow p-4 flex justify-between items-center border-l-4 " + (item.type === 'income' ? 'border-emerald-500' : 'border-rose-500');
-                card.innerHTML = `
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-slate-800 text-sm">${item.desc}</h4>
-                            <span class="font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-slate-900'}">
-                                ${item.type === 'income' ? '+' : '-'}$${item.amount.toFixed(2)}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center mt-1">
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">${item.date}</p>
-                            <button onclick="deleteEntry(${item.id})" class="text-[9px] text-rose-400 font-bold hover:underline">ELIMINAR</button>
-                        </div>
-                    </div>
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-50 hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-700">${item.desc} <br> <span class="text-[10px] text-slate-400 uppercase font-bold">${item.t}</span></td>
+                    <td class="p-4 text-center"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${item.cat === 'ingreso' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}">${item.cat}</span></td>
+                    <td class="p-4 text-right font-black ${item.cat === 'ingreso' ? 'text-emerald-500' : 'text-slate-900'}">${item.cat === 'ingreso' ? '+' : '-'}$${item.amt.toFixed(2)}</td>
                 `;
-                ledger.appendChild(card);
+                rows.appendChild(tr);
             });
 
-            // Actualizar Totales
-            document.getElementById('total-balance').innerText = `$${(inc - exp).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-            document.getElementById('total-income').innerText = `$${inc.toFixed(2)}`;
-            document.getElementById('total-expense').innerText = `$${exp.toFixed(2)}`;
+            const totalExp = res.fijo + res.variable + res.inversion;
+            const balance = res.ingreso - totalExp;
+            
+            document.getElementById('bal').innerText = `$${balance.toFixed(2)}`;
+            
+            // Salud Financiera
+            const progress = res.ingreso > 0 ? (totalExp / res.ingreso) * 100 : 0;
+            document.getElementById('main-progress').style.width = `${Math.min(progress, 100)}%`;
+            
+            const msg = document.getElementById('health-msg');
+            if(progress > 90) { msg.innerText = "⚠️ Peligro: Sobrepasa capacidad"; msg.className="text-[10px] font-bold text-rose-500 uppercase text-center"; }
+            else if(progress > 0) { msg.innerText = "✅ Flujo Controlado"; msg.className="text-[10px] font-bold text-emerald-500 uppercase text-center"; }
 
-            // Actualizar Analítica
-            if (Object.keys(group).length > 0) {
-                analytics.innerHTML = '';
-                analytics.classList.remove('italic', 'text-center');
-                for (let key in group) {
-                    const perc = ((group[key] / exp) * 100).toFixed(0);
-                    const bar = document.createElement('div');
-                    bar.innerHTML = `
-                        <div class="flex justify-between mb-1 font-bold text-slate-600">
-                            <span>${key}</span>
-                            <span>$${group[key].toFixed(2)} (${perc}%)</span>
-                        </div>
-                        <div class="w-full bg-gray-100 h-1.5 rounded-full">
-                            <div class="bg-slate-800 h-full rounded-full" style="width: ${perc}%"></div>
-                        </div>
-                    `;
-                    analytics.appendChild(bar);
-                }
-            } else {
-                analytics.innerHTML = 'Sin datos para analizar este mes.';
-            }
+            // Chart Update
+            chart.data.datasets[0].data = [res.fijo, res.variable, res.inversion];
+            chart.update();
 
-            localStorage.setItem('mi_presupuesto_v4', JSON.stringify(db));
+            localStorage.setItem('budget_expert_v2', JSON.stringify(items));
         }
 
-        function clearAll() {
-            if (confirm("¿Borrar todos los datos?")) { db = []; update(); }
-        }
+        function resetAll() { if(confirm("¿Reiniciar?")) { items = []; update(); } }
 
+        initChart();
         update();
     </script>
 </body>
