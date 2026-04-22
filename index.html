@@ -2,80 +2,186 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EcoBudget | Smart Finance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Presupuesto | Gestión Financiera</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f0f4f8; 
-            color: #1a202c;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        .tab-bar {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-        }
-        .expense-item {
-            transition: transform 0.2s;
-        }
-        .expense-item:active { transform: scale(0.98); }
-        input, select {
-            border: 1px solid #edf2f7 !important;
-            transition: all 0.3s;
-        }
-        input:focus {
-            border-color: #2ecc71 !important;
-            background: white !important;
-        }
-        /* Ocultar scrollbar */
-        ::-webkit-scrollbar { display: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: white; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .category-bar { height: 8px; border-radius: 4px; background: #e2e8f0; overflow: hidden; }
+        .category-progress { height: 100%; background: #0f172a; transition: width 0.5s ease-out; }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-24">
 
-    <div class="p-6 flex justify-between items-center">
-        <div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Mi Billetera</p>
-            <h1 class="text-2xl font-extrabold text-slate-800">EcoBudget <span class="text-green-500">Pro</span></h1>
+    <div class="bg-slate-900 text-white p-8 rounded-b-[40px] mb-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-extrabold tracking-tight">Mi <span class="text-emerald-400">Presupuesto</span></h1>
+            <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500/30">USD $</span>
         </div>
-        <div class="bg-white p-2 rounded-full shadow-sm">
-            <span class="text-xl">🇺🇸</span>
-        </div>
-    </div>
-
-    <div class="px-6">
-        <div class="glass-card p-6 mb-6">
-            <p class="text-sm font-semibold text-gray-500 mb-1 text-center">Disponible para gastar</p>
-            <h2 id="balance" class="text-5xl font-black text-center text-slate-900 mb-4">$0.00</h2>
-            
-            <div class="space-y-2">
-                <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="h-full bg-green-500 transition-all duration-700" style="width: 0%"></div>
+        <div class="text-center">
+            <p class="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Saldo Neto Mensual</p>
+            <h2 id="balance-total" class="text-5xl font-black mb-4">$0.00</h2>
+            <div class="flex justify-around text-sm">
+                <div class="text-emerald-400">
+                    <p class="text-[10px] uppercase opacity-60 font-bold">Total Ingresos</p>
+                    <p class="font-bold text-lg" id="res-income">$0.00</p>
                 </div>
-                <div class="flex justify-between items-center px-1">
-                    <span id="status-text" class="text-[10px] font-extrabold uppercase text-green-500">Presupuesto Sano</span>
-                    <span id="percent-val" class="text-[10px] font-bold text-gray-400">0%</span>
+                <div class="text-rose-400">
+                    <p class="text-[10px] uppercase opacity-60 font-bold">Total Gastos</p>
+                    <p class="font-bold text-lg" id="res-expenses">$0.00</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="glass-card p-5 mb-8 border border-white">
-            <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center">
-                <span class="bg-green-100 text-green-600 p-1 rounded-md mr-2">＋</span> Registro Rápido
+    <div class="px-5 space-y-6">
+        
+        <div class="glass-card p-6">
+            <h3 class="font-extrabold text-slate-800 mb-4 flex items-center">
+                <span class="mr-2 text-emerald-500">📝</span> Registrar Rubro
             </h3>
-            <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="desc" placeholder="¿En qué gastaste?" class="col-span-2 p-4 rounded-2xl bg-gray-50 text-sm focus:outline-none">
-                <input type="number" id="amount" placeholder="Monto $" class="p-4 rounded-2xl bg-gray-50 text-sm focus:outline-none">
-                <select id="type" class="p-4 rounded-2xl bg-gray
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Descripción del concepto</label>
+                    <input type="text" id="item-desc" placeholder="Ej: Alquiler, Mercado, Honorarios..." class="w-full p-4 rounded-2xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Categoría</label>
+                        <select id="item-cat" class="w-full p-4 rounded-2xl bg-slate-50 text-sm outline-none font-semibold text-slate-600 appearance-none">
+                            <option value="Ingreso">💰 INGRESO</option>
+                            <option value="Vivienda">🏠 Vivienda</option>
+                            <option value="Alimentación">🛒 Alimentación</option>
+                            <option value="Transporte">🚗 Transporte</option>
+                            <option value="Servicios">⚡ Servicios</option>
+                            <option value="Salud">💊 Salud</option>
+                            <option value="Ocio">🎉 Ocio/Varios</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Monto ($)</label>
+                        <input type="number" id="item-val" placeholder="0.00" class="w-full p-4 rounded-2xl bg-slate-50 text-sm outline-none">
+                    </div>
+                </div>
+                <button onclick="addItem()" class="w-full bg-slate-900 text-white font-extrabold py-4 rounded-2xl shadow-lg active:scale-95 transition-all hover:bg-slate-800">
+                    AÑADIR AL LISTADO
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card p-6">
+            <h3 class="font-extrabold text-slate-800 mb-4 flex items-center">
+                <span class="mr-2 text-emerald-500">📊</span> Análisis de Gastos
+            </h3>
+            <div id="category-breakdown" class="space-y-4">
+                <p class="text-center text-gray-400 text-sm py-4 italic">No hay gastos registrados aún.</p>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="flex justify-between items-center px-2">
+                <h3 class="font-extrabold text-slate-800">Detalle de Movimientos</h3>
+                <button onclick="reset()" class="text-[10px] font-bold text-rose-500 uppercase tracking-tighter hover:underline">Borrar Historial</button>
+            </div>
+            <div id="ledger" class="space-y-3">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('mi_presupuesto_db')) || [];
+
+        function addItem() {
+            const desc = document.getElementById('item-desc').value;
+            const val = parseFloat(document.getElementById('item-val').value);
+            const cat = document.getElementById('item-cat').value;
+
+            if(!desc || !val || isNaN(val)) return alert("Por favor, ingresa una descripción y un monto válido.");
+
+            data.unshift({ desc, val, cat, id: Date.now() });
+            
+            // Limpiar campos
+            document.getElementById('item-desc').value = '';
+            document.getElementById('item-val').value = '';
+            update();
+        }
+
+        function update() {
+            const ledger = document.getElementById('ledger');
+            const breakdown = document.getElementById('category-breakdown');
+            ledger.innerHTML = '';
+            
+            let inc = 0, exp = 0;
+            let cats = {};
+
+            data.forEach(item => {
+                if(item.cat === 'Ingreso') {
+                    inc += item.val;
+                } else {
+                    exp += item.val;
+                    cats[item.cat] = (cats[item.cat] || 0) + item.val;
+                }
+
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm border border-slate-100";
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 rounded-lg ${item.cat === 'Ingreso' ? 'bg-emerald-50' : 'bg-slate-50'}">
+                             <span class="text-xs font-bold text-slate-500 uppercase">${item.cat.substring(0,3)}</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">${item.desc}</p>
+                        </div>
+                    </div>
+                    <span class="font-black ${item.cat === 'Ingreso' ? 'text-emerald-500' : 'text-slate-700'}">
+                        ${item.cat === 'Ingreso' ? '+' : '-'}$${item.val.toFixed(2)}
+                    </span>
+                `;
+                ledger.appendChild(div);
+            });
+
+            // Actualizar Cabecera
+            const total = inc - exp;
+            document.getElementById('balance-total').innerText = `$${total.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('res-income').innerText = `$${inc.toFixed(2)}`;
+            document.getElementById('res-expenses').innerText = `$${exp.toFixed(2)}`;
+
+            // Generar Análisis de Gastos
+            if (Object.keys(cats).length > 0) {
+                breakdown.innerHTML = '';
+                for (let c in cats) {
+                    const perc = ((cats[c] / exp) * 100).toFixed(0);
+                    const itemBreakdown = document.createElement('div');
+                    itemBreakdown.innerHTML = `
+                        <div class="flex justify-between text-[10px] font-bold uppercase mb-1 text-slate-500">
+                            <span>${c}</span>
+                            <span>$${cats[c].toFixed(2)} (${perc}%)</span>
+                        </div>
+                        <div class="category-bar">
+                            <div class="category-progress" style="width: ${perc}%"></div>
+                        </div>
+                    `;
+                    breakdown.appendChild(itemBreakdown);
+                }
+            } else {
+                breakdown.innerHTML = '<p class="text-center text-gray-400 text-sm py-4 italic">No hay gastos registrados aún.</p>';
+            }
+
+            localStorage.setItem('mi_presupuesto_db', JSON.stringify(data));
+        }
+
+        function reset() { 
+            if(confirm("¿Estás seguro de que quieres eliminar todos los registros de este presupuesto?")) { 
+                data = []; 
+                update(); 
+            } 
+        }
+
+        update();
+    </script>
+</body>
+</html>
