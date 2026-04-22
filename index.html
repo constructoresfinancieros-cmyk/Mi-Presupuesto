@@ -3,157 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Presupuesto | Sistema de Flujo</title>
+    <title>Mi Presupuesto | Dashboard Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #fdfdfd; --card: #ffffff; --primary: #0f172a; }
-        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
-        .neo-card { border-radius: 24px; background: var(--card); border: 1px solid #f1f5f9; box-shadow: 0 4px 30px rgba(0,0,0,0.02); }
-        .progress-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .card-pro { background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .input-pro { background: #f1f5f9; border: 2px solid transparent; border-radius: 14px; padding: 12px; outline: none; transition: 0.3s; width: 100%; font-size: 14px; }
+        .input-pro:focus { border-color: #3b82f6; background: white; }
+        .btn-pro { background: #0f172a; color: white; border-radius: 14px; font-weight: 800; transition: 0.2s; }
+        .btn-pro:active { transform: scale(0.97); }
     </style>
 </head>
-<body class="p-4 md:p-10 max-w-5xl mx-auto">
+<body class="p-4 md:p-10 pb-20">
 
-    <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
-        <div>
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Mi <span class="text-indigo-600">Presupuesto</span></h1>
-            <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Gestión de Flujo de Caja v2.0</p>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-800 tracking-tight">Mi <span class="text-blue-600">Presupuesto</span></h1>
+            <button onclick="reset()" class="text-[10px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-2 rounded-lg">Reiniciar Ciclo</button>
         </div>
-        <div class="flex gap-2">
-            <button onclick="resetAll()" class="px-4 py-2 text-xs font-bold text-rose-500 bg-rose-50 rounded-xl">Reiniciar Ciclo</button>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="space-y-6">
-            <div class="neo-card p-6 border-t-4 border-indigo-600">
-                <h3 class="font-bold text-slate-800 mb-4">Ingresar Movimiento</h3>
-                <div class="space-y-4">
-                    <input type="text" id="desc" placeholder="Descripción (ej. Consultoría)" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                    <input type="number" id="amt" placeholder="Monto USD" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                    <select id="cat" class="w-full p-3 rounded-xl bg-slate-50 border-none text-sm font-bold text-slate-600">
-                        <option value="ingreso">💰 Ingreso (Entrada)</option>
-                        <option value="fijo">🏠 Gasto Fijo (Vivienda/Servicios)</option>
-                        <option value="variable">🛒 Variable (Comida/Ocio)</option>
-                        <option value="inversion">📈 Inversión/Ahorro</option>
-                    </select>
-                    <button onclick="save()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Ejecutar Registro</button>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="card-pro p-6 bg-slate-900 text-white md:col-span-1">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Disponible Real</p>
+                <h2 id="total-balance" class="text-4xl font-800">$0.00</h2>
             </div>
-
-            <div class="neo-card p-6 space-y-4">
-                <div class="flex justify-between">
-                    <span class="text-xs font-bold text-slate-400">DISPONIBLE</span>
-                    <span id="bal" class="font-black text-slate-900">$0.00</span>
+            <div class="card-pro p-6 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-emerald-500">Ingresos</p>
+                    <h3 id="total-income" class="text-2xl font-800 text-slate-800">$0.00</h3>
                 </div>
-                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                    <div id="main-progress" class="progress-fill h-full bg-indigo-600" style="width: 0%"></div>
+                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500">↑</div>
+            </div>
+            <div class="card-pro p-6 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 text-rose-500">Gastos</p>
+                    <h3 id="total-expense" class="text-2xl font-800 text-slate-800">$0.00</h3>
                 </div>
-                <p id="health-msg" class="text-[10px] font-bold text-slate-400 italic text-center uppercase">Sin movimientos</p>
+                <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500">↓</div>
             </div>
         </div>
 
-        <div class="lg:col-span-2 space-y-6">
-            <div class="neo-card p-6">
-                <h3 class="font-bold text-slate-800 mb-6">Análisis de Evolución por Categoría</h3>
-                <canvas id="barChart" height="150"></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="card-pro p-6">
+                    <h3 class="font-800 text-sm mb-4 uppercase">Nuevo Rubro</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="desc" placeholder="Descripción (ej: Mercado)" class="input-pro">
+                        <div class="flex gap-2">
+                            <input type="number" id="amt" placeholder="Monto $" class="input-pro">
+                            <select id="type" class="input-pro font-bold">
+                                <option value="exp">Gasto</option>
+                                <option value="inc">Ingreso</option>
+                            </select>
+                        </div>
+                        <button onclick="add()" class="w-full py-4 btn-pro shadow-xl shadow-slate-200">REGISTRAR</button>
+                    </div>
+                </div>
+
+                <div class="card-pro p-6">
+                    <h3 class="font-800 text-sm mb-4 uppercase text-center">Distribución de Gastos</h3>
+                    <canvas id="chartExpenses"></canvas>
+                </div>
             </div>
 
-            <div class="neo-card overflow-hidden">
-                <div class="p-6 border-b border-slate-50">
-                    <h3 class="font-bold text-slate-800 text-sm">Libro Diario</h3>
-                </div>
-                <div class="max-h-[300px] overflow-y-auto">
-                    <table class="w-full text-left">
-                        <tbody id="rows" class="text-sm">
-                            </tbody>
-                    </table>
+            <div class="lg:col-span-8">
+                <div class="card-pro overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                        <h3 class="font-800 text-sm uppercase">Cronología de Movimientos</h3>
+                    </div>
+                    <div id="ledger" class="divide-y divide-slate-50 max-h-[600px] overflow-y-auto">
+                        <p class="p-10 text-center text-slate-400 text-sm italic">No hay registros este mes.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let items = JSON.parse(localStorage.getItem('budget_expert_v2')) || [];
+        let db = JSON.parse(localStorage.getItem('budget_expert_db')) || [];
         let chart;
 
         function initChart() {
-            const ctx = document.getElementById('barChart').getContext('2d');
+            const ctx = document.getElementById('chartExpenses').getContext('2d');
             chart = new Chart(ctx, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
-                    labels: ['Fijos', 'Variables', 'Inversión'],
+                    labels: [],
                     datasets: [{
-                        label: 'Gasto Real ($)',
-                        data: [0, 0, 0],
-                        backgroundColor: ['#4f46e5', '#f59e0b', '#10b981'],
-                        borderRadius: 8
+                        data: [],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'],
+                        borderWidth: 0,
                     }]
                 },
-                options: { 
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
-                }
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } } }
             });
         }
 
-        function save() {
+        function add() {
             const desc = document.getElementById('desc').value;
             const amt = parseFloat(document.getElementById('amt').value);
-            const cat = document.getElementById('cat').value;
-
+            const type = document.getElementById('type').value;
             if(!desc || !amt) return;
 
-            items.unshift({ desc, amt, cat, t: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+            db.unshift({ desc, amt, type, id: Date.now(), date: new Date().toLocaleDateString('es-VE', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) });
             document.getElementById('desc').value = '';
             document.getElementById('amt').value = '';
             update();
         }
 
         function update() {
-            const rows = document.getElementById('rows');
-            rows.innerHTML = '';
-            
-            let res = { ingreso: 0, fijo: 0, variable: 0, inversion: 0 };
+            const ledger = document.getElementById('ledger');
+            ledger.innerHTML = '';
+            let inc = 0, exp = 0;
+            let categories = {};
 
-            items.forEach((item, index) => {
-                res[item.cat] += item.amt;
+            db.forEach(item => {
+                if(item.type === 'inc') inc += item.amt;
+                else {
+                    exp += item.amt;
+                    categories[item.desc] = (categories[item.desc] || 0) + item.amt;
+                }
 
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-slate-50 hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-700">${item.desc} <br> <span class="text-[10px] text-slate-400 uppercase font-bold">${item.t}</span></td>
-                    <td class="p-4 text-center"><span class="px-2 py-1 rounded-md text-[9px] font-black uppercase ${item.cat === 'ingreso' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}">${item.cat}</span></td>
-                    <td class="p-4 text-right font-black ${item.cat === 'ingreso' ? 'text-emerald-500' : 'text-slate-900'}">${item.cat === 'ingreso' ? '+' : '-'}$${item.amt.toFixed(2)}</td>
+                const div = document.createElement('div');
+                div.className = "p-4 flex justify-between items-center hover:bg-slate-50 transition-all";
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-2 h-10 rounded-full ${item.type === 'inc' ? 'bg-emerald-400' : 'bg-rose-400'}"></div>
+                        <div>
+                            <p class="font-bold text-slate-800">${item.desc}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">${item.date}</p>
+                        </div>
+                    </div>
+                    <p class="font-900 ${item.type === 'inc' ? 'text-emerald-500' : 'text-slate-900'}">
+                        ${item.type === 'inc' ? '+' : '-'}$${item.amt.toFixed(2)}
+                    </p>
                 `;
-                rows.appendChild(tr);
+                ledger.appendChild(div);
             });
 
-            const totalExp = res.fijo + res.variable + res.inversion;
-            const balance = res.ingreso - totalExp;
-            
-            document.getElementById('bal').innerText = `$${balance.toFixed(2)}`;
-            
-            // Salud Financiera
-            const progress = res.ingreso > 0 ? (totalExp / res.ingreso) * 100 : 0;
-            document.getElementById('main-progress').style.width = `${Math.min(progress, 100)}%`;
-            
-            const msg = document.getElementById('health-msg');
-            if(progress > 90) { msg.innerText = "⚠️ Peligro: Sobrepasa capacidad"; msg.className="text-[10px] font-bold text-rose-500 uppercase text-center"; }
-            else if(progress > 0) { msg.innerText = "✅ Flujo Controlado"; msg.className="text-[10px] font-bold text-emerald-500 uppercase text-center"; }
+            document.getElementById('total-balance').innerText = `$${(inc - exp).toLocaleString()}`;
+            document.getElementById('total-income').innerText = `$${inc.toFixed(2)}`;
+            document.getElementById('total-expense').innerText = `$${exp.toFixed(2)}`;
 
-            // Chart Update
-            chart.data.datasets[0].data = [res.fijo, res.variable, res.inversion];
-            chart.update();
+            if(Object.keys(categories).length > 0) {
+                chart.data.labels = Object.keys(categories);
+                chart.data.datasets[0].data = Object.values(categories);
+                chart.update();
+            }
 
-            localStorage.setItem('budget_expert_v2', JSON.stringify(items));
+            localStorage.setItem('budget_expert_db', JSON.stringify(db));
         }
 
-        function resetAll() { if(confirm("¿Reiniciar?")) { items = []; update(); } }
-
+        function reset() { if(confirm("¿Reiniciar?")) { db = []; update(); } }
         initChart();
         update();
     </script>
